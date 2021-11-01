@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>BroAndSis</title>
+
+    <meta name="description" content=""/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <base href="/"/>
+
+    <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+    <script type="text/javascript">
+
+        var logout = function () {
+            $.post("/logout", function () {
+                $(".unauthenticated").show();
+                $(".authenticated").hide();
+            })
+
+        }
+
+        var sisbuttonclick = async function () {
+            $.post("/sisbutton", async function () {
+            }).then(window.location.reload());
+        }
+
+        let check = async function isAuthenticated() {
+            return await (jQuery.when(
+                jQuery.getJSON('/isAuthenticated')
+            ).done(function (data) {
+                return data.isAuthenticated;
+            }));
+        }
+
+        var brobuttonclick = async function () {
+            $.post("/brobutton", async function () {
+            }).then(window.location.reload());
+        }
+        $.get("/user", async function (data) {
+            $("#user").html(data.name);
+            check()
+                .then(JSON.stringify)
+                .then((result) => {
+                        if (result.includes("true")) {
+                            $(".unauthenticated").hide();
+                            $(".authenticated").show();
+                        } else {
+                            $(".unauthenticated").show();
+                            $(".authenticated").hide();
+                        }
+                    }
+                )
+        })
+        $.get("/", function () {
+            if (check().then((result) => result === "")) {
+                $(".unauthenticated").show();
+                $(".authenticated").hide();
+            } else {
+                $(".unauthenticated").hide();
+                $(".authenticated").show();
+            }
+        });
+        $.get("/countSisUsers", function (data) {
+            $("#countSisUsers").html(data.countSisUsers);
+        });
+        $.get("/countBroUsers", function (data) {
+            $("#countBroUsers").html(data.countBroUsers);
+        });
+        $.get("/lastSis", function (data) {
+            $("#lastSis").html(data.lastsis);
+        });
+        $.get("/lastBro", function (data) {
+            $("#lastBro").html(data.lastbro);
+        });
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (settings.type === 'POST' || settings.type === 'PUT'
+                    || settings.type === 'DELETE') {
+                    if (!(/^http:.*/.test(settings.url) || /^https:.*/
+                        .test(settings.url))) {
+                        xhr.setRequestHeader("X-XSRF-TOKEN", Cookies.get('XSRF-TOKEN'));
+                    }
+                }
+            }
+        });
+    </script>
+</head>
+
+<body>
+<div class="container unauthenticated text-black">
+    <div class="row">
+        <a class="btn btn-light btn-outline-dark btn-lg btn-block" href="/oauth2/authorization/google"
+           role="button">
+            <img width="20px" style="margin-bottom:3px; margin-right:5px" alt="Google sign-in"
+                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"/>
+            Login with Google
+        </a>
+    </div>
+    <div class="row">
+        <a class="btn btn-light btn-outline-dark btn-lg btn-block" href="/oauth2/authorization/github" role="button"
+           style="text-transform:none">
+            <img width="20px" style="margin-bottom:3px; margin-right:5px" alt="GitHub sign-in"
+                 src="https://upload.wikimedia.org/wikipedia/commons/a/ae/Github-desktop-logo-symbol.svg"/>
+            Login with GitHub
+        </a>
+    </div>
+    <div class="row">
+        <a class="btn btn-light btn-outline-dark btn-lg btn-block" href="/oauth2/authorization/facebook"
+           role="button"
+           style="text-transform:none">
+            <img width="20px" style="margin-bottom:3px; margin-right:5px" alt="Facebook sign-in"
+                 src="https://upload.wikimedia.org/wikipedia/commons/f/fb/Facebook-logo-black.png"/>
+            Login with Facebook
+        </a>
+    </div>
+    <div class="mt-5 pt-5 mx-5 px-5">
+        <div class="row">
+            <div class="col-lg-auto">
+                <a onClick="window.location.reload()" class="btn btn-light-lg"><h3>Bro users: <span
+                        id="countBroUsers"></span></h3></a>
+            </div>
+            <div class="col-lg-auto">
+                <a onClick="window.location.reload()" class="btn btn-light-lg"><h3>Sis users: <span
+                        id="countSisUsers"></span></h3></a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container authenticated">
+    <div>
+        <button type="button" class="btn btn-primary btn-lg btn input-block-level form-control" onClick="logout()">
+            Logout
+        </button>
+    </div>
+    <h4><p class="text-center">Logged in as: <span id="user"></span></p></h4>
+    <div class="mt-5 pt-5 mx-5 px-5">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="row-cols-lg-6">
+                    <a onClick="window.location.reload()" class="btn btn-light-md"><span
+                            id="lastBro"></span></a>
+                    <br>
+                    <button type="button" onClick="brobuttonclick()" class="btn btn-primary btn-lg">Bro!</button>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="row-cols-lg-6">
+                    <a onClick="window.location.reload()" class="btn btn-light-md"><span
+                            id="lastSis"></span></a>
+                    <br>
+                    <button type="button" onClick="sisbuttonclick()" class="btn btn-primary btn-lg">Sis!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
