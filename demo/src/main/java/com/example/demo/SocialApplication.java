@@ -91,22 +91,16 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 
     @PostMapping("/brobutton")
     public void broButtonClick(@AuthenticationPrincipal OAuth2User principal) {
-        User user = userRepository.findUserByName(principal.getAttribute("name")).orElseGet(() -> {
-            User newUser = new User();
-            newUser.setName(principal.getAttribute("name"));
-            return newUser;
-        });
+        User user = new User();
+        user.setName(principal.getAttribute("name"));
         user.setLastTimeClickedBroButton(LocalDateTime.now());
         userRepository.save(user);
     }
 
     @PostMapping("/sisbutton")
     public void sisButtonClick(@AuthenticationPrincipal OAuth2User principal) {
-        User user = userRepository.findUserByName(principal.getAttribute("name")).orElseGet(() -> {
-            User newUser = new User();
-            newUser.setName(principal.getAttribute("name"));
-            return newUser;
-        });
+        User user = new User();
+        user.setName(principal.getAttribute("name"));
         user.setLastTimeClickedSisButton(LocalDateTime.now());
         userRepository.save(user);
     }
